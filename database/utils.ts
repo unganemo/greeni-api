@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Driver, Session } from "neo4j-driver/types";
+import { Driver, Session } from "neo4j-driver";
 import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();

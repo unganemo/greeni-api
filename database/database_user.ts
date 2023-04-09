@@ -35,7 +35,6 @@ export const get_user_by_email = async (email: string) => {
 		{ email: email }
 	);
 	const user = result.records[0].get("u") ?? null;
-	console.log(user.properties);
 
 	return user.properties;
 };
