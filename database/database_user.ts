@@ -38,3 +38,29 @@ export const get_user_by_email = async (email: string) => {
 
 	return user.properties;
 };
+
+export const get_fridge_invites_d = async (id: string) => {
+	const session = create_session(driver);
+	try {
+		const result = await session.run(
+			`
+			MATCH (u1:User)-[r:INVITES]->(u2:User {id: $id})
+			RETURN COLLECT({
+				owner_id: u1.id,
+				fridge_id: r.fridge_id,
+				firstName: u1.firstName,
+				lastName: u1.lastName,
+				sent_at: r.sent_at,
+				invited_id: u2.id
+			}) AS invites
+			`,
+			{ id: id }
+		);
+		const invites = result.records[0].get("invites");
+		console.log();
+		return invites;
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};

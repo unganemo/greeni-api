@@ -4,7 +4,6 @@ import {
 	NewGroceryRequest,
 	AddGroceryToFridgeRequest,
 } from "../interfaces/interface_grocery";
-import { number } from "joi";
 
 const driver = neo4j.driver(
 	get_env_var("NEO4J_URI"),
@@ -14,23 +13,54 @@ const driver = neo4j.driver(
 	)
 );
 
+export const get_all_groceries_d = async () => {
+	const session = create_session(driver);
+
+	try {
+		const result = await session.run(
+			`
+			MATCH (g:Grocery)
+			RETURN COLLECT({
+				id: g.id,
+				name: g.name,
+				days: g.days
+			}) AS groceries
+			`
+		);
+
+		return result.records[0].toObject();
+	} catch (e) {
+		console.log(e);
+		throw e;
+	} finally {
+		session.close();
+	}
+};
+
 export const new_grocery_d = async (request: NewGroceryRequest) => {
 	const session = create_session(driver);
 
 	const result = await session.run(
 		`
-    CREATE (g:Grocery {id: $id, name: $name})
-    RETURN g.id AS id, g.name AS name
+		MATCH (g:Grocery {name: $name})
+		WITH g
+		LIMIT 1
+		RETURN g.id AS id, g.name AS name, g.days AS days
+		UNION
+		CREATE (g:Grocery {id: $id, name: $name, days: $days})
+		RETURN g.id AS id, g.name AS name, g.days AS days
   `,
 		{
 			id: get_uuid(),
 			name: request.name,
+			days: request.days,
 		}
 	);
 	session.close();
 	return result.records.map((record) => ({
 		id: record.get("id"),
 		name: record.get("name"),
+		days: record.get("days"),
 	}));
 };
 
@@ -44,7 +74,7 @@ export const add_grocery_to_fridge_d = async (
 			`
 		MATCH (g:Grocery),(f:Fridge)
 		WHERE g.id = $grocery_id AND f.id = $fridge_id
-		CREATE (g)-[r:LIVES_IN]->(f)
+		CREATE (f)-[r:HAS]->(g)
 		SET r.expires = $expires, r.purchased = $purchased
 		RETURN g.name AS name, r.expires AS expires, r.purchased AS purchased, g.id AS id
 		`,
@@ -70,7 +100,7 @@ export const add_grocery_to_fridge_d = async (
 		CREATE (g:Grocery {id: $grocery_id, name: $grocery_name})
 		WITH g
 		MATCH (f:Fridge {id: $fridge_id})
-		CREATE (g)-[r:LIVES_IN]->(f)
+		CREATE (f)-[r:HAS]->(g)
 		SET r.expires = $expires, r.purchased = $purchased
 		RETURN g.name AS name, r.expires AS expires, r.purchased AS purchased, g.id AS id
 		`,

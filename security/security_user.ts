@@ -1,5 +1,5 @@
 import { LoginRequest, SignUpRequest } from "../interfaces/interface_user";
-import { sign_up_l, login_l } from "../logic/logic_user";
+import { sign_up_l, login_l, get_fridge_invites_l } from "../logic/logic_user";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { Token } from "../interfaces/interface_user";
@@ -28,4 +28,8 @@ export const login_s = async (
 		const error = { status: 401 };
 		return error;
 	}
+};
+
+export const get_fridge_invites_s = async (request: string) => {
+	return await get_fridge_invites_l(request);
 };

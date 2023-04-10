@@ -1,4 +1,4 @@
-import { sign_up_c, login_c } from "../cache/cache_user";
+import { sign_up_c, login_c, get_fridge_invites_c } from "../cache/cache_user";
 import { LoginRequest, SignUpRequest } from "../interfaces/interface_user";
 import { get_hash } from "./utils";
 import bcrypt from "bcrypt";
@@ -21,4 +21,8 @@ export const login_l = async (request: LoginRequest) => {
 	}
 
 	return null;
+};
+
+export const get_fridge_invites_l = async (request: string) => {
+	return await get_fridge_invites_c(request);
 };

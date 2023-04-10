@@ -3,7 +3,7 @@ import {
 	InviteUserToFridgeRequest,
 	NewFridgeRequest,
 } from "../interfaces/interface_fridge";
-import neo4j, { DateTime } from "neo4j-driver";
+import neo4j from "neo4j-driver";
 import { Point } from "neo4j-driver";
 import { create_session, get_env_var, get_uuid } from "./utils";
 const SRID = 4326;
@@ -113,6 +113,38 @@ export const accept_invite_to_fridge_d = async (
 		} else {
 			console.log("Invitation not found or user is not invited");
 		}
+	} catch (error) {
+		console.log(error);
+	} finally {
+		await session.close();
+	}
+};
+
+export const get_fridge_content_d = async (request: string) => {
+	const session = create_session(driver);
+	try {
+		const fridgeIds = await session.run(
+			"MATCH (u:User {id: $user_id}) OPTIONAL MATCH (u)-[r:OWNS|SUBSCRIBES_TO]->(f:Fridge) RETURN f.id AS fridge_id, r.name AS fridge_name, CASE WHEN type(r) = 'OWNS' THEN true ELSE false END AS owner",
+			{ user_id: request }
+		);
+
+		const result = [];
+		for (const record of fridgeIds.records) {
+			const fridge_id = record.get("fridge_id");
+			const fridge_name = record.get("fridge_name");
+			const owner = record.get("owner");
+			console.log(fridge_name);
+			const fridge = await session.run(
+				`
+				MATCH (f:Fridge {id: $fridge_id})
+				OPTIONAL MATCH (f)-[in_rel:HAS]->(g:Grocery)
+				RETURN f.id AS fridge_id, $fridge_name AS fridge_name, $owner AS isOwner, f.location AS location, collect({ id: g.id, name: g.name, expires: in_rel.expires, purchased: in_rel.purchased }) AS groceries
+				`,
+				{ fridge_id: fridge_id, fridge_name: fridge_name, owner: owner }
+			);
+			result.push(fridge.records[0].toObject());
+		}
+		return result;
 	} catch (error) {
 		console.log(error);
 	} finally {

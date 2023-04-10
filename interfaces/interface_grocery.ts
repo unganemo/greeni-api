@@ -1,5 +1,6 @@
 export interface NewGroceryRequest {
 	name: string;
+	days: number;
 }
 
 export interface AddGroceryToFridgeRequest {
