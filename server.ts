@@ -2,9 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import { user_routes } from "./api/api_user";
-import { fridge_routes } from "./api/api_fridge";
-import { grocery_routes } from "./api/api_grocery";
 import router from "./api/routes";
 
 dotenv.config();
@@ -19,5 +16,5 @@ app.use(cors());
 app.use("/api", router);
 
 app.listen(port, () => {
-	console.log(`API listening at http://localhost:${port}`);
+  console.log(`API listening at http://localhost:${port}`);
 });
