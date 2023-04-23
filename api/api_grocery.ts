@@ -3,6 +3,7 @@ import {
   new_grocery_s,
   add_grocery_to_kitchen_s,
   get_all_groceries_s,
+  delete_grocery_from_kitchen_s,
   get_grocery_by_name_s,
 } from "../security/security_grocery";
 
@@ -18,6 +19,13 @@ grocery_routes.post("/new_grocery", async (req, res) => {
 //Adds grocery to a kitchen
 grocery_routes.post("/add_to_kitchen", async (req, res) => {
   const response = await add_grocery_to_kitchen_s(req);
+  res.setHeader("Content-Type", "application/json");
+  res.send(JSON.stringify(response, null, 2));
+});
+
+grocery_routes.delete("/:kitchen_id", async (req, res) => {
+  const response = await delete_grocery_from_kitchen_s(req);
+  console.log(response);
   res.setHeader("Content-Type", "application/json");
   res.send(JSON.stringify(response, null, 2));
 });

@@ -21,3 +21,8 @@ export interface Grocery {
 export interface Groceries {
   groceries: Grocery[];
 }
+
+export interface DeleteGroceryRequest {
+  kitchen_id: string;
+  grocery_id: string;
+}

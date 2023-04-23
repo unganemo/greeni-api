@@ -3,12 +3,34 @@ import { create_session, get_env_var, get_uuid } from "./utils";
 import {
   NewGroceryRequest,
   AddGroceryToKitchenRequest,
+  DeleteGroceryRequest,
 } from "../interfaces/interface_grocery";
 
 const driver = neo4j.driver(
   get_env_var("NEO4J_URI"),
   neo4j.auth.basic(get_env_var("NEO4J_USERNAME"), get_env_var("NEO4J_PASSWORD"))
 );
+
+export const delete_grocery_from_kitchen_d = async (
+  request: DeleteGroceryRequest
+) => {
+  const session = create_session(driver);
+
+  try {
+    const result = await session.run(
+      `MATCH(:Kitchen {id: $kitchen_id})-[r:HAS]->(:Grocery{id: $grocery_id})
+      DELETE r`,
+      { kitchen_id: request.kitchen_id, grocery_id: request.grocery_id }
+    );
+    console.log(result);
+    return 204;
+  } catch (e) {
+    console.log(e);
+    return 500;
+  } finally {
+    session.close();
+  }
+};
 
 export const get_all_groceries_d = async () => {
   const session = create_session(driver);
