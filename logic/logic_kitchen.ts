@@ -4,6 +4,7 @@ import {
   accept_invite_to_kitchen_c,
   get_kitchen_content_c,
 } from "../cache/cache_kitchen";
+import { Groceries, Grocery } from "../interfaces/interface_grocery";
 import {
   AcceptInviteToKitchenRequest,
   InviteUserToKitchenRequest,
@@ -27,5 +28,36 @@ export const accept_invite_to_kitchen_l = async (
 };
 
 export const get_kitchen_content_l = async (request: string) => {
-  return await get_kitchen_content_c(request);
+  const response = await get_kitchen_content_c(request);
+  if (response !== undefined) {
+    const today = new Date();
+    const expiring_soonThreshold = new Date();
+    expiring_soonThreshold.setDate(expiring_soonThreshold.getDate() + 2);
+    for (const kitchen of response) {
+      const expiring_soon = [];
+      const expired = [];
+      const not_expired = [];
+      const { groceries } = kitchen;
+
+      for (const item of groceries) {
+        const expires = new Date(item.expires);
+
+        if (expires < today) {
+          expired.push(item);
+        } else if (expires <= expiring_soonThreshold) {
+          expiring_soon.push(item);
+        } else {
+          not_expired.push(item);
+        }
+      }
+
+      const sortedGroceries = [expiring_soon, not_expired, expired];
+      kitchen.groceries = sortedGroceries;
+      expiring_soon;
+    }
+
+    return response;
+  } else {
+    return response;
+  }
 };

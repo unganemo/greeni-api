@@ -10,3 +10,14 @@ export interface AddGroceryToKitchenRequest {
   expires: string;
   purchased: string;
 }
+
+export interface Grocery {
+  expires: Date;
+  purchased: Date;
+  name: string;
+  id: string;
+}
+
+export interface Groceries {
+  groceries: Grocery[];
+}
