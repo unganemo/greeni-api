@@ -1,28 +1,27 @@
 export interface NewGroceryRequest {
-  name: string;
-  days: number;
+	name: string;
+	days: number;
 }
 
 export interface AddGroceryToKitchenRequest {
-  grocery_id?: string;
-  grocery_name?: string;
-  kitchen_id: string;
-  expires: string;
-  purchased: string;
+	grocery_id?: string;
+	grocery_name?: string;
+	kitchen_id: string;
+	expires: string;
+	purchased: string;
 }
 
 export interface Grocery {
-  expires: Date;
-  purchased: Date;
-  name: string;
-  id: string;
+	expires: Date;
+	purchased: Date;
+	name: string;
+	id: string;
 }
 
 export interface Groceries {
-  groceries: Grocery[];
+	groceries: Grocery[];
 }
 
 export interface DeleteGroceryRequest {
-  kitchen_id: string;
-  grocery_id: string;
+	has_id: string;
 }
